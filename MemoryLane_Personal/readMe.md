@@ -101,7 +101,9 @@ MemoryLane_Personal/
 ## 📸 Screenshots
 
 > _Add screenshots here once UI is finalized to demonstrate login, dashboard, and timeline._
-
+![alt text](image.png)
+![alt text](<Screenshot 2025-06-14 234456.png>)
+![alt text](image-1.png)
 ---
 
 
