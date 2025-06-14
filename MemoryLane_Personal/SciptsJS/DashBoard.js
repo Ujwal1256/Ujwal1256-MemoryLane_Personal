@@ -1,7 +1,8 @@
 // Constants for reusable values
 const CLOUDINARY_UPLOAD_PRESET = "memories"; // Cloudinary upload preset
 const CLOUDINARY_BASE_URL = "https://api.cloudinary.com/v1_1/dwt3fmnmm"; // Cloudinary base URL
-const FIRESTORE_BASE_URL = "https://firestore.googleapis.com/v1/projects/samdb-66322/databases/(default)/documents"; // Firestore base URL
+const FIRESTORE_BASE_URL =
+  "https://firestore.googleapis.com/v1/projects/samdb-66322/databases/(default)/documents"; // Firestore base URL
 
 // Cached DOM elements for performance
 const DOM = {
@@ -55,7 +56,9 @@ function redirectUnauthorized() {
 
 // Memory: Upload memory to Cloudinary and Firestore
 async function uploadMemory() {
-  const modal = bootstrap.Modal.getInstance(document.getElementById("addMemoryModal"));
+  const modal = bootstrap.Modal.getInstance(
+    document.getElementById("addMemoryModal")
+  );
   const fields = {
     title: document.getElementById("title").value,
     notes: document.getElementById("notes").value,
@@ -77,7 +80,9 @@ async function uploadMemory() {
     formData.append("file", fields.mediaFile);
     formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
     const isVideo = fields.mediaFile.type.startsWith("video/");
-    const uploadUrl = `${CLOUDINARY_BASE_URL}/${isVideo ? "video" : "image"}/upload`;
+    const uploadUrl = `${CLOUDINARY_BASE_URL}/${
+      isVideo ? "video" : "image"
+    }/upload`;
 
     const cloudRes = await fetch(uploadUrl, { method: "POST", body: formData });
     const cloudData = await cloudRes.json();
@@ -94,7 +99,11 @@ async function uploadMemory() {
       timestamp: { stringValue: new Date().toISOString() },
       tags: {
         arrayValue: {
-          values: fields.tags.split(",").map(t => t.trim()).filter(Boolean).map(t => ({ stringValue: t })),
+          values: fields.tags
+            .split(",")
+            .map((t) => t.trim())
+            .filter(Boolean)
+            .map((t) => ({ stringValue: t })),
         },
       },
     };
@@ -105,8 +114,13 @@ async function uploadMemory() {
     const existingMemories = docData.fields?.memories?.mapValue?.fields || {};
 
     // Update Firestore
-    const updatedMemories = { ...existingMemories, [memoryKey]: { mapValue: { fields: memoryFields } } };
-    const body = { fields: { memories: { mapValue: { fields: updatedMemories } } } };
+    const updatedMemories = {
+      ...existingMemories,
+      [memoryKey]: { mapValue: { fields: memoryFields } },
+    };
+    const body = {
+      fields: { memories: { mapValue: { fields: updatedMemories } } },
+    };
     const patchRes = await fetch(`${docUrl}?currentDocument.exists=true`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
@@ -126,6 +140,26 @@ async function uploadMemory() {
   }
 }
 
+// Utility: Format ISO timestamp to readable string
+function formatTimestamp(isoString) {
+  if (!isoString) return "Date Unknown";
+
+  try {
+    const date = new Date(isoString);
+    return date.toLocaleString("en-IN", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    });
+  } catch (err) {
+    console.error("Invalid timestamp format:", isoString);
+    return "Invalid date";
+  }
+}
+
 // Memory: Fetch and display memories
 async function fetchMemories() {
   if (!DOM.memoriesList || !userEmail) return;
@@ -137,35 +171,79 @@ async function fetchMemories() {
     if (!res.ok) throw new Error("Failed to fetch memories");
 
     const data = await res.json();
-    memoryEntries = Object.values(data.fields?.memories?.mapValue?.fields || {});
+    memoryEntries = Object.values(
+      data.fields?.memories?.mapValue?.fields || {}
+    );
 
-    memoryEntries.forEach(entry => {
-      const { title, notes, location, mediaUrl, tags } = entry.mapValue.fields;
-      const isVideo = /\.(mp4|webm|ogg)$/i.test(mediaUrl.stringValue);
+    //sort in chronological order
+    memoryEntries.sort((a, b) => {
+      const timeA = new Date(a.mapValue.fields.timestamp.stringValue);
+      const timeB = new Date(b.mapValue.fields.timestamp.stringValue);
+      return timeB - timeA; // Newest first
+    });
 
-      const card = `
-        <div class="col">
-          <div class="memory-card shadow-sm rounded-4 overflow-hidden">
-            <div class="media-section">
-              ${isVideo
-                ? `<video controls><source src="${mediaUrl.stringValue}" type="video/mp4"></video>`
-                : `<img src="${mediaUrl.stringValue}" alt="Memory Media">`}
-            </div>
-            <div class="memory-content p-3">
-              <h3 class="fs-5"><i class="fa-solid fa-bookmark"></i> ${title.stringValue}</h3>
-              <p class="small"><i class="fa-solid fa-pen-nib"></i> ${notes.stringValue}</p>
-              <div class="tags text-primary mb-2">
-                ${tags?.arrayValue?.values?.map(t => `<span class="me-1">#${t.stringValue}</span>`).join("") || ""}
-              </div>
-              <div class="location text-muted">
-                <i class="fa-solid fa-location-dot"></i> ${location?.stringValue || "Unknown location"}
-              </div>
-            </div>
+   memoryEntries.forEach((entry) => {
+  const { title, notes, location, mediaUrl, tags, timestamp } = entry.mapValue.fields;
+  const isVideo = /\.(mp4|webm|ogg)$/i.test(mediaUrl.stringValue);
+
+  const rawTimestamp = entry.mapValue.fields.timestamp?.stringValue;
+  const formattedTime = formatTimestamp(rawTimestamp);
+
+  const encodedUrl = encodeURIComponent(mediaUrl.stringValue);
+
+  const card = `
+    <div class="col">
+      <div class="memory-card shadow-sm rounded-4 overflow-hidden">
+        <div class="media-section">
+          ${
+            isVideo
+              ? `<video controls><source src="${mediaUrl.stringValue}" type="video/mp4"></video>`
+              : `<img src="${mediaUrl.stringValue}" alt="Memory Media">`
+          }
+        </div>
+        <div class="memory-content p-3">
+          <div class="timestamp text-muted small mb-2">
+            <i class="fa-regular fa-clock"></i> ${formattedTime}
+          </div>
+          <h3 class="fs-5"><i class="fa-solid fa-bookmark"></i> ${title.stringValue}</h3>
+          <p class="small"><i class="fa-solid fa-pen-nib"></i> ${notes.stringValue}</p>
+          <div class="tags text-primary mb-2">
+            ${
+              tags?.arrayValue?.values
+                ?.map((t) => `<span class="me-1">#${t.stringValue}</span>`)
+                .join("") || ""
+            }
+          </div>
+          <div class="location text-muted mb-3">
+            <i class="fa-solid fa-location-dot"></i> ${
+              location?.stringValue || "Unknown location"
+            }
+          </div>
+          <div class="d-flex justify-content-between align-items-center border-top pt-2 share-icons">
+            <a href="https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}" target="_blank" title="Share on Facebook">
+              <i class="fa-brands fa-facebook fa-lg text-primary"></i>
+            </a>
+            <a href="https://api.whatsapp.com/send?text=${encodedUrl}" target="_blank" title="Share on WhatsApp">
+              <i class="fa-brands fa-whatsapp fa-lg text-success"></i>
+            </a>
+            <a href="https://www.instagram.com/" target="_blank" title="Open Instagram">
+              <i class="fa-brands fa-instagram fa-lg text-danger"></i>
+            </a>
+            <a href="https://twitter.com/intent/tweet?url=${encodedUrl}" target="_blank" title="Tweet This">
+              <i class="fa-brands fa-x-twitter fa-lg text-dark"></i>
+            </a>
+            <a href="${mediaUrl.stringValue}" download="${title.stringValue || 'memory'}" target="_blank" title="Download">
+              <i class="fa-solid fa-download fa-lg text-secondary"></i>
+            </a>
           </div>
         </div>
-      `;
-      DOM.memoriesList.insertAdjacentHTML("beforeend", card);
-    });
+      </div>
+    </div>
+  `;
+
+  DOM.memoriesList.insertAdjacentHTML("beforeend", card);
+});
+
   } catch (error) {
     console.error("Error fetching memories:", error);
     DOM.memoriesList.innerHTML = `<p class="text-center">Failed to load memories.</p>`;
@@ -173,47 +251,86 @@ async function fetchMemories() {
 }
 
 // Memory: Search memories
+// Memory: Search memories
 function searchMemories(query) {
   if (!DOM.memoriesList) return;
 
   DOM.memoriesList.innerHTML = "";
-  const q = query.toLowerCase();
+  const q = query.toLowerCase().trim();
 
-  const filteredEntries = memoryEntries.filter(entry => {
-    const { title, notes, location, tags } = entry.mapValue.fields;
+  if (!q) {
+    fetchMemories(); // Re-display all memories if query is empty
+    return;
+  }
+
+  const filteredEntries = memoryEntries.filter((entry) => {
+    const { title, notes, location, tags, timestamp } = entry.mapValue.fields;
     return (
-      title?.stringValue?.toLowerCase().includes(q) ||
-      notes?.stringValue?.toLowerCase().includes(q) ||
-      location?.stringValue?.toLowerCase().includes(q) ||
-      tags?.arrayValue?.values?.some(t => t.stringValue.toLowerCase().includes(q))
+      (title?.stringValue || "").toLowerCase().includes(q) ||
+      (notes?.stringValue || "").toLowerCase().includes(q) ||
+      (location?.stringValue || "").toLowerCase().includes(q) ||
+      (tags?.arrayValue?.values || []).some((t) =>
+        (t.stringValue || "").toLowerCase().includes(q)
+      ) ||
+      formatTimestamp(timestamp?.stringValue || "").toLowerCase().includes(q)
     );
   });
 
   if (!filteredEntries.length) {
-    DOM.memoriesList.innerHTML = `<p class="text-center">No results found.</p>`;
+    DOM.memoriesList.innerHTML = `<p class="text-center text-muted">No results found for "${q}".</p>`;
     return;
   }
 
-  filteredEntries.forEach(entry => {
-    const { title, notes, location, mediaUrl, tags } = entry.mapValue.fields;
+  filteredEntries.forEach((entry) => {
+    const { title, notes, location, mediaUrl, tags, timestamp } = entry.mapValue.fields;
     const isVideo = /\.(mp4|webm|ogg)$/i.test(mediaUrl.stringValue);
+    const formattedTime = formatTimestamp(timestamp?.stringValue);
+    const encodedUrl = encodeURIComponent(mediaUrl.stringValue);
 
     const card = `
       <div class="col">
         <div class="memory-card shadow-sm rounded-4 overflow-hidden">
           <div class="media-section">
-            ${isVideo
-              ? `<video controls><source src="${mediaUrl.stringValue}" type="video/mp4"></video>`
-              : `<img src="${mediaUrl.stringValue}" alt="Memory Media">`}
+            ${
+              isVideo
+                ? `<video controls><source src="${mediaUrl.stringValue}" type="video/mp4"></video>`
+                : `<img src="${mediaUrl.stringValue}" alt="Memory Media">`
+            }
           </div>
           <div class="memory-content p-3">
+            <div class="timestamp text-muted small mb-2">
+              <i class="fa-regular fa-clock"></i> ${formattedTime}
+            </div>
             <h3 class="fs-5"><i class="fa-solid fa-bookmark"></i> ${title.stringValue}</h3>
             <p class="small"><i class="fa-solid fa-pen-nib"></i> ${notes.stringValue}</p>
             <div class="tags text-primary mb-2">
-              ${tags?.arrayValue?.values?.map(t => `<span class="me-1">#${t.stringValue}</span>`).join("") || ""}
+              ${
+                tags?.arrayValue?.values
+                  ?.map((t) => `<span class="me-1">#${t.stringValue}</span>`)
+                  .join("") || ""
+              }
             </div>
-            <div class="location text-muted">
-              <i class="fa-solid fa-location-dot"></i> ${location?.stringValue || "Unknown location"}
+            <div class="location text-muted mb-3">
+              <i class="fa-solid fa-location-dot"></i> ${
+                location?.stringValue || "Unknown location"
+              }
+            </div>
+            <div class="d-flex justify-content-between align-items-center border-top pt-2 share-icons">
+              <a href="https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}" target="_blank" title="Share on Facebook">
+                <i class="fa-brands fa-facebook fa-lg text-primary"></i>
+              </a>
+              <a href="https://api.whatsapp.com/send?text=${encodedUrl}" target="_blank" title="Share on WhatsApp">
+                <i class="fa-brands fa-whatsapp fa-lg text-success"></i>
+              </a>
+              <a href="https://www.instagram.com/" target="_blank" title="Open Instagram">
+                <i class="fa-brands fa-instagram fa-lg text-danger"></i>
+              </a>
+              <a href="https://twitter.com/intent/tweet?url=${encodedUrl}" target="_blank" title="Tweet This">
+                <i class="fa-brands fa-x-twitter fa-lg text-dark"></i>
+              </a>
+              <a href="${mediaUrl.stringValue}" download="${title.stringValue || 'memory'}" target="_blank" title="Download">
+                <i class="fa-solid fa-download fa-lg text-secondary"></i>
+              </a>
             </div>
           </div>
         </div>
@@ -225,7 +342,14 @@ function searchMemories(query) {
 
 // Voice Notes: Initialize recording
 function initVoiceRecording() {
-  if (!DOM.startRecordingBtn || !DOM.stopRecordingBtn || !DOM.recordingStatus || !DOM.voiceNotePreview || !DOM.saveVoiceNoteBtn) return;
+  if (
+    !DOM.startRecordingBtn ||
+    !DOM.stopRecordingBtn ||
+    !DOM.recordingStatus ||
+    !DOM.voiceNotePreview ||
+    !DOM.saveVoiceNoteBtn
+  )
+    return;
 
   DOM.startRecordingBtn.addEventListener("click", async () => {
     if (!navigator.mediaDevices?.getUserMedia) {
@@ -238,7 +362,7 @@ function initVoiceRecording() {
       mediaRecorder = new MediaRecorder(stream);
       audioChunks = [];
 
-      mediaRecorder.ondataavailable = event => {
+      mediaRecorder.ondataavailable = (event) => {
         if (event.data.size > 0) audioChunks.push(event.data);
       };
 
@@ -292,7 +416,10 @@ function initVoiceRecording() {
       formData.append("file", audioBlob, "voiceNote.webm");
       formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
 
-      const cloudRes = await fetch(`${CLOUDINARY_BASE_URL}/video/upload`, { method: "POST", body: formData });
+      const cloudRes = await fetch(`${CLOUDINARY_BASE_URL}/video/upload`, {
+        method: "POST",
+        body: formData,
+      });
       const cloudData = await cloudRes.json();
       if (!cloudData.secure_url) throw new Error("Cloudinary upload failed");
       const audioUrl = cloudData.secure_url;
@@ -300,7 +427,9 @@ function initVoiceRecording() {
       // Save to Firestore
       const docUrl = `${FIRESTORE_BASE_URL}/voicenotes/${userEmail}`;
       const getRes = await fetch(docUrl);
-      const existingNotes = getRes.ok ? (await getRes.json()).fields?.notes?.mapValue?.fields || {} : {};
+      const existingNotes = getRes.ok
+        ? (await getRes.json()).fields?.notes?.mapValue?.fields || {}
+        : {};
 
       const noteKey = `note_${Date.now()}`;
       const noteFields = {
@@ -309,8 +438,13 @@ function initVoiceRecording() {
         timestamp: { stringValue: new Date().toISOString() },
       };
 
-      const updatedNotes = { ...existingNotes, [noteKey]: { mapValue: { fields: noteFields } } };
-      const body = { fields: { notes: { mapValue: { fields: updatedNotes } } } };
+      const updatedNotes = {
+        ...existingNotes,
+        [noteKey]: { mapValue: { fields: noteFields } },
+      };
+      const body = {
+        fields: { notes: { mapValue: { fields: updatedNotes } } },
+      };
 
       const patchRes = await fetch(`${docUrl}?currentDocument.exists=true`, {
         method: "PATCH",
@@ -333,7 +467,9 @@ function initVoiceRecording() {
       audioChunks = [];
       DOM.saveVoiceNoteBtn.disabled = true;
 
-      const modal = bootstrap.Modal.getInstance(document.getElementById("addVoiceNoteModal"));
+      const modal = bootstrap.Modal.getInstance(
+        document.getElementById("addVoiceNoteModal")
+      );
       modal?.hide();
       await fetchVoiceNotes();
     } catch (error) {
@@ -368,7 +504,11 @@ async function fetchVoiceNotes() {
     }
 
     notesArr
-      .sort((a, b) => new Date(b.mapValue.fields.timestamp.stringValue) - new Date(a.mapValue.fields.timestamp.stringValue))
+      .sort(
+        (a, b) =>
+          new Date(b.mapValue.fields.timestamp.stringValue) -
+          new Date(a.mapValue.fields.timestamp.stringValue)
+      )
       .forEach(({ mapValue: { fields } }) => {
         const card = `
           <div class="col">
@@ -377,8 +517,12 @@ async function fetchVoiceNotes() {
                 <img src="./assets/mic.png" width="32" />
                 <h5 class="mb-0">${fields.title?.stringValue || "Untitled"}</h5>
               </div>
-              <audio controls src="${fields.audioUrl?.stringValue}" class="w-100 my-2"></audio>
-              <small class="text-muted">${new Date(fields.timestamp?.stringValue).toLocaleString()}</small>
+              <audio controls src="${
+                fields.audioUrl?.stringValue
+              }" class="w-100 my-2"></audio>
+              <small class="text-muted">${new Date(
+                fields.timestamp?.stringValue
+              ).toLocaleString()}</small>
             </div>
           </div>
         `;
@@ -423,11 +567,13 @@ function showSection(section) {
     albums: document.querySelectorAll('a[href="albums.html"]'),
   };
 
-  Object.values(containers).forEach(c => c && (c.hidden = true));
-  Object.values(buttons).forEach(btns => btns.forEach(b => b.classList.remove("active")));
+  Object.values(containers).forEach((c) => c && (c.hidden = true));
+  Object.values(buttons).forEach((btns) =>
+    btns.forEach((b) => b.classList.remove("active"))
+  );
 
   containers[section] && (containers[section].hidden = false);
-  buttons[section].forEach(b => b.classList.add("active"));
+  buttons[section].forEach((b) => b.classList.add("active"));
 
   const sidebar = document.querySelector(".sidebar.offcanvas");
   if (sidebar && bootstrap?.Offcanvas) {
@@ -446,15 +592,19 @@ document.addEventListener("DOMContentLoaded", async () => {
   await fetchVoiceNotes();
   initVoiceRecording();
 
-  DOM.memoryForm?.addEventListener("submit", async e => {
+  DOM.memoryForm?.addEventListener("submit", async (e) => {
     e.preventDefault();
     await uploadMemory();
   });
 
-  DOM.searchInput?.addEventListener("input", e => searchMemories(e.target.value));
+  DOM.searchInput?.addEventListener("input", (e) =>
+    searchMemories(e.target.value)
+  );
 
   DOM.addVoiceNoteBtn?.addEventListener("click", () => {
-    const modal = new bootstrap.Modal(document.getElementById("addVoiceNoteModal"));
+    const modal = new bootstrap.Modal(
+      document.getElementById("addVoiceNoteModal")
+    );
     modal.show();
   });
 
@@ -465,8 +615,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   ];
 
   navLinks.forEach(({ selector, section }) => {
-    document.querySelectorAll(selector).forEach(btn => {
-      btn.addEventListener("click", e => {
+    document.querySelectorAll(selector).forEach((btn) => {
+      btn.addEventListener("click", (e) => {
         e.preventDefault();
         showSection(section);
       });
