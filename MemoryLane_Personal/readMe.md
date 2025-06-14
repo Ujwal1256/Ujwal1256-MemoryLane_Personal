@@ -14,11 +14,11 @@ Memories fade with time, but MemoryLane ensures they're preserved forever. This 
 
 ## 🛠️ Tech Stack
 
-- **Frontend:** HTML, CSS, JavaScript
-- **Styling:** Custom CSS with animations and dark mode support
-- **Authentication:** Firebase Authentication
-- **Database:** Firebase Firestore
-- **Media Storage:** Cloudinary DataBase
+- **Frontend:**   HTML, CSS, JavaScript
+- **Styling:**   Custom CSS with animations and dark mode support
+- **Authentication:**    Firebase Authentication
+- **Database:**     Firebase Firestore
+- **Media Storage:**   Cloudinary DataBase
 
 ---
 
@@ -29,6 +29,7 @@ Memories fade with time, but MemoryLane ensures they're preserved forever. This 
 ---
 ## 📁 Project Structure
 
+```bash
 MemoryLane_Personal/
 │
 ├── assets/ # Media files (images, videos, audio)
