@@ -57,7 +57,7 @@
           <form id="signup-form">
             <input type="text" placeholder="Name" required />
             <input type="email" placeholder="Email" required />
-            <input type="password" placeholder="Password" required min="6"/>
+            <input type="password" placeholder="Password" required min="6" />
             <p class="error-message" style="color: red; display: none"></p>
             <button type="submit" class="clkbtn">Sign Up</button>
           </form>
@@ -66,6 +66,10 @@
           </p>
         </div>
       </div>
+    </div>
+    <!-- Loader Modal -->
+    <div id="loader-modal" class="loader-modal">
+      <div class="spinner"></div>
     </div>
     <script type="module" src="./SciptsJS/LoginScript.js"></script>
     <script>
@@ -84,7 +88,6 @@
         document.getElementById("signupToggle").classList.add("active");
         document.getElementById("loginToggle").classList.remove("active");
       }
-   
     </script>
   </body>
 </html>

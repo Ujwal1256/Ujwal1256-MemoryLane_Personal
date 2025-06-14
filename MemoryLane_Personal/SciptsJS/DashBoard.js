@@ -1,3 +1,11 @@
+
+
+
+function toggleLoader(show = true) {
+  let loader = document.querySelector("#loader-modal");
+  if (show) loader?.classList.add("show");
+  else loader?.classList.remove("show");
+}
 // Get the user email from sessionStorage
 const user = JSON.parse(sessionStorage.getItem("user"));
 const userEmail = user?.email;
@@ -32,8 +40,10 @@ document.getElementById("memoryForm").addEventListener("submit", async function 
   event.preventDefault();
 
   try {
+    
      uploadMemory(); // upload memory to Firebase or wherever
      document.getElementById("memoryForm").reset();
+    
 
       // const modal = bootstrap.Modal.getInstance(
       //   document.getElementById("addMemoryCard")
@@ -79,6 +89,7 @@ async function uploadMemory() {
   formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
 
   try {
+    toggleLoader(true);
     const cloudRes = await fetch(CLOUDINARY_URL, {
       method: "POST",
       body: formData,
@@ -138,13 +149,17 @@ async function uploadMemory() {
     });
 
     if (!res.ok) {
+      toggleLoader(false);
       throw new Error("Failed to store memory");
+      
     }
 
     if (modal) modal.hide();
     fetchMemories();
+    toggleLoader(false);
   } catch (err) {
     if (modal) modal.hide();
+    toggleLoader(false);
     console.error("Upload failed:", err);
   }
 }
@@ -356,6 +371,7 @@ if (startBtn && stopBtn && statusDiv && audioPreview && saveBtn) {
 
   saveBtn.addEventListener("click", async function () {
     saveBtn.disabled = true;
+    
     const title = voiceNoteTitleInput ? voiceNoteTitleInput.value.trim() : "";
     if (!title) {
       alert("Please enter a title for the voice note.");
@@ -380,6 +396,7 @@ if (startBtn && stopBtn && statusDiv && audioPreview && saveBtn) {
     formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
 
     try {
+      toggleLoader(true);
       const cloudRes = await fetch(
         "https://api.cloudinary.com/v1_1/dwt3fmnmm/video/upload",
         {
@@ -456,9 +473,11 @@ if (startBtn && stopBtn && statusDiv && audioPreview && saveBtn) {
 
       // Fetch and display updated voice notes
       fetchVoiceNotes();
+      toggleLoader(false);
     } catch (err) {
       alert("Failed to save voice note: " + err.message);
       saveBtn.disabled = false;
+      toggleLoader(false);
     }
   });
 }
@@ -545,8 +564,10 @@ async function fetchVoiceNotes() {
 }
 
 document.addEventListener("DOMContentLoaded", function () {
+  toggleLoader(true);
   fetchMemories();
   fetchVoiceNotes();
+  toggleLoader(false);
   const searchInput = document.getElementById("searchInput");
   if (searchInput) {
     searchInput.addEventListener("input", (e) => {

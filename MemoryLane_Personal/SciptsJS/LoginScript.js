@@ -1,9 +1,21 @@
-
-
+// Firebase imports
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
-import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+import {
+  getAuth,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  GoogleAuthProvider,
+  signInWithPopup,
+  signOut,
+} from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+import {
+  getFirestore,
+  doc,
+  setDoc,
+  getDoc,
+} from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
 
+// Firebase config
 const firebaseConfig = {
   apiKey: "AIzaSyDuz1CBuKc7fwUanvUC4w0Ot5T-yaPAykQ",
   authDomain: "samdb-66322.firebaseapp.com",
@@ -14,101 +26,157 @@ const firebaseConfig = {
   measurementId: "G-0KD2CG6R8J",
 };
 
+// Firebase init
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 const provider = new GoogleAuthProvider();
 
-document.querySelector("#login-box .clkbtn").addEventListener("click", () => {
-    const email = document.querySelector("#login-box input[type='email']").value;
-    const password = document.querySelector("#login-box input[type='password']").value;
+function toggleLoader(show = true) {
+  let loader = document.querySelector("#loader-modal");
+  if (show) loader?.classList.add("show");
+  else loader?.classList.remove("show");
+}
 
-    signInWithEmailAndPassword(auth, email, password)
-        .then((userCredential) => {
-            // alert("Login successful!");
-            console.log("User logged in successfully:", userCredential.user);
-            setTimeout(() => {
-                window.location.href = "./DashBoard.html";
-            }, 100);
-        })
-        .catch((error) => {
-            // Show error message in a dedicated element instead of alert
-            const errorElem = document.querySelector("#login-box .error-message");
-            if (errorElem) {
-                errorElem.textContent = "Invalid email or password. Please try again.";
-                errorElem.style.display = "block";
-            }
-        });
+function showToast(message) {
+  const toast = document.createElement("div");
+  toast.className = "toast-message";
+  toast.textContent = message;
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 3000);
+}
+
+function showError(formId, message) {
+  const errorElem = document.querySelector(`${formId} .error-message`);
+  if (errorElem) {
+    errorElem.textContent = message;
+    errorElem.style.display = "block";
+  }
+}
+
+function clearError(formId) {
+  const errorElem = document.querySelector(`${formId} .error-message`);
+  if (errorElem) {
+    errorElem.textContent = "";
+    errorElem.style.display = "none";
+  }
+}
+
+async function initializeUserData(user, name = "") {
+  const userRef = doc(db, "users", user.email);
+  const userSnap = await getDoc(userRef);
+  if (!userSnap.exists()) {
+    await setDoc(userRef, {
+      name: name || user.displayName || "",
+      email: user.email,
+    });
+  }
+
+  const memoriesRef = doc(db, "memories", user.email);
+  const memoriesSnap = await getDoc(memoriesRef);
+  if (!memoriesSnap.exists()) {
+    await setDoc(memoriesRef, { memories: {} });
+  }
+}
+
+document.querySelector("#login-form").addEventListener("submit", async (event) => {
+  event.preventDefault();
+  clearError("#login-box");
+  toggleLoader(true);
+
+  const email = document.querySelector("#login-box input[type='email']").value.trim();
+  const password = document.querySelector("#login-box input[type='password']").value;
+
+  if (!email || !password) {
+    showError("#login-box", "Please enter both email and password.");
+    toggleLoader(false);
+    return;
+  }
+
+  try {
+    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+    sessionStorage.setItem("user", JSON.stringify({ uid: userCredential.user.uid, email }));
+    localStorage.setItem("logged in", "true");
+
+    event.target.reset();
+    toggleLoader(false);
+
+    history.pushState(null, null, location.href);
+    window.onpopstate = function () {
+      history.go(1);
+    };
+
+    window.location.href = "./DashBoard.html";
+  } catch (error) {
+    showError("#login-box", "Invalid email or password. Please try again.");
+    event.target.reset();
+    toggleLoader(false);
+  }
 });
 
-document.querySelector("#signup-box .clkbtn").addEventListener("click", () => {
-  const name = document.querySelector("#signup-box input[type='text']").value;
-  const email = document.querySelector("#signup-box input[type='email']").value;
+document.querySelector("#signup-form").addEventListener("submit", async (event) => {
+  event.preventDefault();
+  clearError("#signup-box");
+  toggleLoader(true);
+
+  const name = document.querySelector("#signup-box input[type='text']").value.trim();
+  const email = document.querySelector("#signup-box input[type='email']").value.trim();
   const password = document.querySelector("#signup-box input[type='password']").value;
 
-  createUserWithEmailAndPassword(auth, email, password)
-    .then(async (userCredential) => {
-      await setDoc(doc(db, "users", userCredential.user.uid), {
-        name,
-        email
-      });
-      alert("Signup successful!");
-    })
-    .catch((error) => {
-      alert("Signup failed: " + error.message);
-      console.error("Error during signup:", error);
-    });
+  if (!name || !email || !password) {
+    showError("#signup-box", "Please fill in all fields.");
+    toggleLoader(false);
+    return;
+  }
+
+  try {
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    await initializeUserData(userCredential.user, name);
+
+    sessionStorage.setItem("user", JSON.stringify({ uid: userCredential.user.uid, name, email }));
+    localStorage.setItem("logged in", "true");
+
+    event.target.reset();
+    toggleLoader(false);
+    showToast("Sign up successful! Login now.");
+    document.getElementById("loginToggle").click();
+  } catch (error) {
+    showError("#signup-box", error.message);
+    event.target.reset();
+    toggleLoader(false);
+  }
 });
 
 document.querySelector(".google-btn").addEventListener("click", async () => {
-    try {
-        // Always sign out first to ensure a fresh login
-        if (auth.currentUser) {
-            await auth.signOut();
-        }
+  try {
+    toggleLoader(true);
+    if (auth.currentUser) await signOut(auth);
 
-        const result = await signInWithPopup(auth, provider);
-        const user = result.user;
-        const userRef = doc(db, "users", user.email);
+    const result = await signInWithPopup(auth, provider);
+    const user = result.user;
+    await initializeUserData(user);
 
-        // Check if user document exists, create if not
-        const userSnap = await getDoc(userRef);
-        if (!userSnap.exists()) {
-            await setDoc(userRef, {
-                name: user.displayName || "",
-                email: user.email
-            });
-            // Create a "memories" collection with the user's email as the doc ID, only if it doesn't exist
-            const memoriesRef = doc(db, "memories", user.email);
-            const memoriesSnap = await getDoc(memoriesRef);
-            if (!memoriesSnap.exists()) {
-                await setDoc(memoriesRef, {
-                    memories: {}
-                });
-            }    await setDoc(doc(db, "memories", user.email), {
-            memories: {}
-        });
-        }
+    sessionStorage.setItem("user", JSON.stringify({ uid: user.uid, name: user.displayName || "", email: user.email }));
+    localStorage.setItem("logged in", "true");
 
-        
-        //save user data to local storage
-        sessionStorage.setItem("user", JSON.stringify({
-            uid: user.uid,
-            name: user.displayName || "",
-            email: user.email
-        }));
-
-        // Set loggedOut to false in localStorage on successful login
-        localStorage.setItem("logged in", "true");    
-        setTimeout(() => {
-            window.location.replace("./DashBoard.html");
-        }, 1000);
-    } catch (error) {
-        alert("Google Sign-In failed: " + error.message);
-        console.error("Google Sign-In error:", error);
-    }
+    toggleLoader(false);
+    window.location.href = "./DashBoard.html";
+  } catch (error) {
+    toggleLoader(false);
+    alert("Google Sign-In failed: " + error.message);
+  }
 });
 
+export async function logOutUser() {
+  try {
+    await signOut(auth);
+    sessionStorage.clear();
+    localStorage.setItem("logged in", "false");
+    window.location.replace("index.html");
+  } catch (error) {
+    console.error("Logout failed:", error);
+    alert("Logout failed. Please try again.");
+  }
+}
 
-
-
+export { auth };
