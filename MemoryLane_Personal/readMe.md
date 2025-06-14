@@ -27,7 +27,7 @@ Memories fade with time, but MemoryLane ensures they're preserved forever. This 
 
 ## Demo
 
-- **Live Demo**: [MemoryLane on Netlify](https://your-netlify-link-here.netlify.app)
+- **Live Demo**: [MemoryLane on Netlify](https://memory-lane-personal.netlify.app/)
 
 
 ---
