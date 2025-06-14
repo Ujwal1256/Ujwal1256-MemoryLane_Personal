@@ -1,13 +1,90 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <link rel="stylesheet" href="stylles.css">
-</head>
-<body>
-    <script src="script.js">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MemoryLane Login</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./CSS Styles/LoginStyle.css" />
+  </head>
+  <body>
+    <video autoplay muted loop id="bg-video">
+      <source src="./assets/248162.mp4" type="video/mp4" />
+      Your browser does not support the video tag.
+    </video>
+    <div class="card-container">
+      <div class="image-section">
+        <h1>Memories Vault</h1>
+        <img src="./assets/image.png" alt="memmories-img" id="memories-img" />
+        <p>
+          Capture and relive your memories. Build a timeline with photos, notes,
+          and locations.
+        </p>
+      </div>
+      <div class="form-section">
+        <div class="toggle-buttons">
+          <button id="loginToggle" class="active" onclick="showLogin()">
+            Login
+          </button>
+          <button id="signupToggle" onclick="showSignup()">Sign Up</button>
+        </div>
+
+        <!-- Login Form -->
+        <div id="login-box" class="form-box active">
+          <h2 style="color: #00bfa5; text-align: center">Welcome Back</h2>
+
+          <form id="login-form">
+            <input type="email" placeholder="Username or Email" required />
+            <input type="password" placeholder="Password" required min="6" />
+            <p class="error-message" style="color: red; display: none"></p>
+            <button type="submit" class="clkbtn">Login</button>
+            <button type="button" class="google-btn">
+              <img src="./assets/search.png" alt="Google Icon" /> Sign in with
+              Google
+            </button>
+          </form>
+          <p class="switch-link">
+            Don't have an account? <span onclick="showSignup()">Sign Up</span>
+          </p>
+        </div>
+
+        <!-- Signup Form -->
+        <div id="signup-box" class="form-box">
+          <h2 style="color: #00bfa5; text-align: center">Create Account</h2>
+          <form id="signup-form">
+            <input type="text" placeholder="Name" required />
+            <input type="email" placeholder="Email" required />
+            <input type="password" placeholder="Password" required min="6"/>
+            <p class="error-message" style="color: red; display: none"></p>
+            <button type="submit" class="clkbtn">Sign Up</button>
+          </form>
+          <p class="switch-link">
+            Already have an account? <span onclick="showLogin()">Login</span>
+          </p>
+        </div>
+      </div>
+    </div>
+    <script type="module" src="./SciptsJS/LoginScript.js"></script>
+    <script>
+      // Function to show the login form
+      function showLogin() {
+        document.getElementById("login-box").classList.add("active");
+        document.getElementById("signup-box").classList.remove("active");
+        document.getElementById("loginToggle").classList.add("active");
+        document.getElementById("signupToggle").classList.remove("active");
+      }
+
+      // Function to show the signup form
+      function showSignup() {
+        document.getElementById("signup-box").classList.add("active");
+        document.getElementById("login-box").classList.remove("active");
+        document.getElementById("signupToggle").classList.add("active");
+        document.getElementById("loginToggle").classList.remove("active");
+      }
+   
     </script>
-</body>
+  </body>
 </html>
