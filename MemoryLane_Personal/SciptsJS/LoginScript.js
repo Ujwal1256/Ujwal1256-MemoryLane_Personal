@@ -166,7 +166,9 @@ document.querySelector(".google-btn").addEventListener("click", async () => {
     window.location.replace("./DashBoard.html");
   } catch (error) {
     toggleLoader(false);
-    alert("Google Sign-In failed: " + error.message);
+    // alert("Google Sign-In failed: " + error.message);
+    console.error("Google Sign-In failed:", error);
+    showError("#login-box", "Google Sign-In failed. Please try again.");
   }
 });
 
