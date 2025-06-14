@@ -14,40 +14,40 @@ Memories fade with time, but MemoryLane ensures they're preserved forever. This 
 
 ## 🛠️ Tech Stack
 
-- **Frontend:**   HTML, CSS, JavaScript
-- **Styling:**   Custom CSS with animations and dark mode support
-- **Authentication:**    Firebase Authentication
-- **Database:**     Firebase Firestore
-- **Media Storage:**   Cloudinary DataBase
+- **Frontend**: HTML, CSS, JavaScript, Bootstrap 5, Font Awesome
+- **Backend**: Firebase Authentication, Firestore for database
+- **Media Storage**: Cloudinary for image, video, and audio storage
+- **External Libraries**:
+  - Bootstrap 5 for responsive design
+  - Font Awesome for icons
+  - Firebase SDK for authentication and database
+- **Deployment**: Hosted on Netlify
 
 ---
 
-## Deployment 
--- **Netlify:** Live Demo()
+## Demo
+
+- **Live Demo**: [MemoryLane on Netlify](https://your-netlify-link-here.netlify.app)
 
 
 ---
-## 📁 Project Structure
+<!-- ## 📁 Project Structure
 
 ```bash
 MemoryLane_Personal/
 │
-├── assets/ # Media files (images, videos, audio)
-│
+├── assets/
 ├── CSS Styles/
-│ ├── DashBoard.css # Styling for dashboard view
-│ └── LoginStyle.css # Styling for login/registration screens
-│
+│   ├── DashBoard.css
+│   └── LoginStyle.css
 ├── SciptsJS/
-│ ├── DashBoard.js # Logic for timeline, albums, memory rendering
-│ └── LoginScript.js # Authentication logic
-│
-├── DashBoard.html # Main dashboard screen
-├── index.html # Login and registration page
-└── README.md # Project documentation (this file)
+│   ├── DashBoard.js
+│   └── LoginScript.js
+├── DashBoard.html
+├── index.html
+└── README.md
 
----
-
+--- -->
 
 ## 🚀 How to Run Locally
 
