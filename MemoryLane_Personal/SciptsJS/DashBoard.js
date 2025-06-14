@@ -192,7 +192,7 @@ async function fetchMemories() {
   const encodedUrl = encodeURIComponent(mediaUrl.stringValue);
 
   const card = `
-    <div class="col">
+    <div class="col" style="margin-bottom: 20px;">
       <div class="memory-card shadow-sm rounded-4 overflow-hidden">
         <div class="media-section">
           ${
@@ -288,7 +288,7 @@ function searchMemories(query) {
     const encodedUrl = encodeURIComponent(mediaUrl.stringValue);
 
     const card = `
-      <div class="col">
+      <div class="col" style="margin-bottom: 20px;">
         <div class="memory-card shadow-sm rounded-4 overflow-hidden">
           <div class="media-section">
             ${
@@ -511,7 +511,7 @@ async function fetchVoiceNotes() {
       )
       .forEach(({ mapValue: { fields } }) => {
         const card = `
-          <div class="col">
+          <div class="col" style="margin-bottom: 20px;">
             <div class="card shadow-sm rounded-4 h-100 p-3 d-flex flex-column justify-content-between">
               <div class="d-flex align-items-center gap-2 mb-2">
                 <img src="./assets/mic.png" width="32" />
