@@ -79,6 +79,7 @@ async function initializeUserData(user, name = "") {
   }
 }
 
+// Login form handling
 document.querySelector("#login-form").addEventListener("submit", async (event) => {
   event.preventDefault();
   clearError("#login-box");
@@ -106,7 +107,7 @@ document.querySelector("#login-form").addEventListener("submit", async (event) =
       history.go(1);
     };
 
-    window.location.href = "./DashBoard.html";
+    window.location.replace("./DashBoard.html");
   } catch (error) {
     showError("#login-box", "Invalid email or password. Please try again.");
     event.target.reset();
@@ -114,6 +115,8 @@ document.querySelector("#login-form").addEventListener("submit", async (event) =
   }
 });
 
+
+// Sign-up form handling
 document.querySelector("#signup-form").addEventListener("submit", async (event) => {
   event.preventDefault();
   clearError("#signup-box");
@@ -160,23 +163,11 @@ document.querySelector(".google-btn").addEventListener("click", async () => {
     localStorage.setItem("logged in", "true");
 
     toggleLoader(false);
-    window.location.href = "./DashBoard.html";
+    window.location.replace("./DashBoard.html");
   } catch (error) {
     toggleLoader(false);
     alert("Google Sign-In failed: " + error.message);
   }
 });
 
-export async function logOutUser() {
-  try {
-    await signOut(auth);
-    sessionStorage.clear();
-    localStorage.setItem("logged in", "false");
-    window.location.replace("index.html");
-  } catch (error) {
-    console.error("Logout failed:", error);
-    alert("Logout failed. Please try again.");
-  }
-}
 
-export { auth };
