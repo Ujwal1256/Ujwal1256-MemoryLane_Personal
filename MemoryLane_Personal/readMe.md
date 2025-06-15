@@ -100,10 +100,14 @@ MemoryLane_Personal/
 
 ## 📸 Screenshots
 
-> _Add screenshots here once UI is finalized to demonstrate login, dashboard, and timeline._
+-- Login/SignUp Page
 ![alt text](image.png)
-![alt text](<Screenshot 2025-06-14 234456.png>)
+
+-- Memories TimeLine
 ![alt text](image-1.png)
+
+-- Voice Notes
+![alt text](image-2.png)
 ---
 
 
