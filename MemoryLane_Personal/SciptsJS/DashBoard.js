@@ -523,7 +523,11 @@ async function fetchVoiceNotes() {
               <small class="text-muted">${new Date(
                 fields.timestamp?.stringValue
               ).toLocaleString()}</small>
-            </div>
+
+              
+              
+            
+            
           </div>
         `;
         DOM.voiceNotesList.insertAdjacentHTML("beforeend", card);

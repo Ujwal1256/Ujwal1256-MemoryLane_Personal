@@ -302,6 +302,7 @@ html.dark-mode {
   color: #fff;
 }
 
+
 .dark-mode .mynav li a {
   color: #fff;
 }
@@ -316,10 +317,9 @@ html.dark-mode {
   color: #fff;
 }
 
-.dark-mode .memory-card {
-  background-color: #1e1e1e;
-  border: 1px solid #333;
-  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.06);
+.dark-mode .container-fluid {
+  background-color: #121212;
+  color: #e0e0e0;
 }
 
 .dark-mode .memory-card:hover {
@@ -330,11 +330,8 @@ html.dark-mode {
   color: #80cbc4;
 }
 
-.dark-mode .memory-content p,
-.dark-mode .memory-content i,
-.dark-mode .location {
-  color: #bdbdbd;
-}
+
+
 
 .dark-mode .tags span {
   background-color: #263238;
