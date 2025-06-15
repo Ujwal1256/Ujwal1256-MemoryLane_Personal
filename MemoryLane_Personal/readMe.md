@@ -31,9 +31,9 @@ Memories fade with time, but MemoryLane ensures they're preserved forever. This 
 
 
 ---
-<!-- ## 📁 Project Structure
+## 📁 Project Structure
 
-```bash
+```
 MemoryLane_Personal/
 │
 ├── assets/
@@ -46,8 +46,8 @@ MemoryLane_Personal/
 ├── DashBoard.html
 ├── index.html
 └── README.md
-
---- -->
+```
+---
 
 ## 🚀 How to Run Locally
 
