@@ -39,7 +39,7 @@ function toggleLoader(show = true) {
 async function LogOut() {
   try {
     sessionStorage.clear();
-    sessionStorage.setItem("signedIn", "false");
+    localStorage.setItem("signedIn", "false");
     window.location.replace("index.html");
   } catch (error) {
     console.error("Logout failed:", error);
@@ -48,8 +48,8 @@ async function LogOut() {
 
 // Utility: Redirect unauthorized users
 function redirectUnauthorized() {
-  if (!userEmail && sessionStorage.getItem("signedIn") === "false") {
-    sessionStorage.removeItem("signedIn");
+  if (!userEmail && localStorage.getItem("signedIn") === "false") {
+    localStorage.removeItem("signedIn");
     window.location.replace("index.html");
   }
 }
