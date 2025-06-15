@@ -100,19 +100,24 @@ MemoryLane_Personal/
 
 ## 📸 Screenshots
 
--- Login/SignUp Page
+--  Login/SignUp Page
+
 ![alt text](image.png)
 
--- Memories TimeLine
+--  Memories TimeLine
+
 ![alt text](image-1.png)
 
 -- Voice Notes
+
 ![alt text](image-2.png)
 ---
 
 
 ## 📽️ Demo Video 
 
-https://youtu.be/IZbtrbkuzXg
+
+[![Watch the video](https://i.ytimg.com/an_webp/IZbtrbkuzXg/mqdefault_6s.webp?du=3000&sqp=CLDXucIG&rs=AOn4CLB174P_X37raBN7kUDW3q0wvhcptw)](https://youtu.be/IZbtrbkuzXg)
+
 
 ---
