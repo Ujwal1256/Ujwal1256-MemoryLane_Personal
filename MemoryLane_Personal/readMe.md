@@ -53,7 +53,7 @@ MemoryLane_Personal/
 
 1. Clone this repo:
    ```bash
-   git clone https://github.com/your-username/MemoryLane_Personal.git
+   git clone https://github.com/Ujwal1256/Ujwal1256-MemoryLane_Personal.git
    Open index.html 
 
 ---
