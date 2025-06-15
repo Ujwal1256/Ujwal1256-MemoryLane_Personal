@@ -39,7 +39,7 @@ function toggleLoader(show = true) {
 async function LogOut() {
   try {
     sessionStorage.clear();
-    localStorage.setItem("signedIn", "false");
+    sessionStorage.setItem("signedIn", "false");
     window.location.replace("index.html");
   } catch (error) {
     console.error("Logout failed:", error);
@@ -48,8 +48,8 @@ async function LogOut() {
 
 // Utility: Redirect unauthorized users
 function redirectUnauthorized() {
-  if (!userEmail && localStorage.getItem("signedIn") === "false") {
-    localStorage.removeItem("signedIn");
+  if (!userEmail && sessionStorage.getItem("signedIn") === "false") {
+    sessionStorage.removeItem("signedIn");
     window.location.replace("index.html");
   }
 }
@@ -549,10 +549,10 @@ function initThemeToggle() {
     const icon = DOM.themeToggle.querySelector("i");
     icon.classList.toggle("fa-moon", !isDark);
     icon.classList.toggle("fa-sun", isDark);
-    localStorage.setItem("theme", isDark ? "dark" : "light");
+    sessionStorage.setItem("theme", isDark ? "dark" : "light");
   });
 
-  if (localStorage.getItem("theme") === "dark") {
+  if (sessionStorage.getItem("theme") === "dark") {
     document.body.classList.add("dark-mode");
     DOM.themeToggle.querySelector("i")?.classList.replace("fa-moon", "fa-sun");
   }
